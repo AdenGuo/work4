@@ -21,7 +21,9 @@ The data which will be analysed contains physicochemical sensory information of 
   <div style='width: 500px; text-align: center;'> White Vinho Verde </div>
 </a>
 
-Vinho Verde could be white, red or rose. And the most productive kind of Vinho Verde is white. The dataset explored here contains 
+Vinho Verde could be white, red or rose. And the most productive kind of Vinho Verde is white. The dataset explored here includes 11 important laboratory tested physicochemical values of the wine and one sensory test result from human expert. 
+
+Next several sections will explored some important patterns and correlations of these data items. These exploration will focused on the question: what makes Vinho Verde taste good?
 ```{r}
 nrow(white_wine)
 ncol(white_wine)
