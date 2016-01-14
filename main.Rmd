@@ -43,7 +43,7 @@ summary(white_wine[,2:12])
 ## **Univariate Analysis**
 The most important variable is quality. All the other values about chemical composition are for high quality. So in this section, the quality of all the values are analyzed.
 
-Since the quality of the wine is defined in ten grades which is from human experts. The grades of wine in this data are ordinal level factors. From the numbers of each grades and the bar plot of the grades, Although there are total 10 grades (1-10) of the quality. No wine was identify as grade 1, 2, 10.  This result means that no human expert gave one of the 4898 white wine of Vinho Verde very bad grades or perfect scores. No very bad grades may be explained by the fact that all the Vindo Verde are produced in the same area and under similar condition. And lacking of excellent quality (noticed that even grade 9 is very rare in almost 5000 kinds of white wine) may be the result of the marketing of Vinho Verde. Vinho Verde is regard as inexpensive and fun. The wine is not usually treated as serious and high-end wine. I believe this may result in human experts' unwillingness to grand very high grades to this kind of wine.        
+Since the quality of the wine is defined in ten grades which are from human experts. The grades of wine in this data are ordinal level factors. From the numbers of each grades and the bar plot of the grades, Although there are total 10 grades (1-10) of the quality. No wine was identify as grade 1, 2, 10.  This result means that no human expert gave one of the 4898 white wine of Vinho Verde very bad grades or perfect scores. No very bad grades may be explained by the fact that all the Vindo Verde are produced in the same area and under similar condition. And lacking of excellent quality (noticed that even grade 9 is very rare in almost 5000 kinds of white wine) may be the result of the marketing of Vinho Verde. Vinho Verde is regard as inexpensive and fun. The wine is not usually treated as serious and high-end wine. I believe this may result in human experts' unwillingness to grand very high grades to this kind of wine.        
 ```{r}
 white_wine$ordered_quality <- factor(white_wine$quality, levels=c("1", "2", "3","4","5","6","7","8","9","10"), ordered = TRUE)
 table(white_wine$ordered_quality)
@@ -51,11 +51,18 @@ ggplot(data = white_wine, aes(x = ordered_quality)) +
  geom_bar(aes(fill = ordered_quality))
 ```
 
-
+Following is the pie chart of the qualities of wines. Grade 5, 6, 7 occupy most kinds of Vinho Verde. The number of wines which is graded below 5 or above 7 is very small compare to middle grades. 
 ```{r}
 ggplot(data = white_wine, aes(x = factor(1), fill = ordered_quality)) +
  geom_bar(width = 1) + 
  coord_polar(theta = "y")
+```
+
+Above features of the variable quality suggest that the grades of Vinho Verde are very concentrated. Based on these observations, I divided the wines into three categories by the high drops of numbers of wines from grade 5 to 4 and from 7 to 8. I name these three categories "low"(grade 3 and 4), "normal"(grade 5, 6 and 7) and "high"(grade 8 and 9).
+```{r}
+white_wine$ordered_catrgory <- white_wine$ordered_quality
+levels(white_wine$ordered_catrgory) <- c("low", "low", "low","low","normal","normal","normal","high","high","high")
+table(white_wine$ordered_catrgory)
 ```
 
 ## **Bivariate Analysis**
