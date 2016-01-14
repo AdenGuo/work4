@@ -24,12 +24,34 @@ The data which will be analysed contains physicochemical sensory information of 
 Vinho Verde could be white, red or rose. And the most productive kind of Vinho Verde is white. The dataset explored here includes 11 important laboratory tested physicochemical values of the wine and one sensory test result from human expert. 
 
 Next several sections will explored some important patterns and correlations of these data items. These exploration will focused on the question: what makes Vinho Verde taste good?
+
+### Summaries of data
+
+Number of items of the data.
 ```{r}
 nrow(white_wine)
-ncol(white_wine)
+```
+Features of the data. In all the variables,  X is item number. From fixed.acidity to alcohol is the quantitative values of physicochemical tests. And the last variable, quality, is the subjective grades given by human. It takes values from 1(very bad) to 10(excellent).   
+```{r}
+str(white_wine)
+```
+Summary of the physicochemical results in the dataset. All these variables are numerical. As showed in this chart. Values of some variables are very stable and some have diverse distribution. For example, all the density is very similar and residual sugar are range from 0.6 - 65.800. And some variables tell some facts about the wine. pH is all below 4 suggest that the wine contains acid. And the very different kind of sugar level suggest some wine taste very sweet(sweetness may be from fruit).  
+```{r}
+summary(white_wine[,2:12])
 ```
 
 ## **Univariate Analysis**
+The most important variable is quality. All the other values about chemical composition are for high quality. So in this section, the quality of all the values are analyzed.
+```{r}
+white_wine$ordered_quality <- factor(white_wine$quality, levels=c("1", "2", "3","4","5","6","7","8","9","10"), ordered = TRUE)
+table(white_wine$ordered_quality)
+```
+
+```{r}
+ggplot(aes(x = ordered_quality), data = white_wine) + 
+  geom_bar(aes(fill = ordered_quality))
+```
+
 ## **Bivariate Analysis**
 ## **Multivariate Analysis**
 ## **Final Plots and Summary**
