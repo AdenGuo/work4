@@ -7,6 +7,7 @@ output: html_document
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 library(ggplot2)
+library(reshape)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -35,7 +36,7 @@ Features of the data. In all the variables,  X is item number. From fixed.acidit
 ```{r}
 str(white_wine)
 ```
-Summary of the physicochemical results in the dataset. All these variables are numerical. As showed in this chart. Values of some variables are very stable and some have diverse distribution. For example, all the density is very similar and residual sugar are range from 0.6 - 65.800. And some variables tell some facts about the wine. pH is all below 4 suggest that the wine contains acid. And the very different kind of sugar level suggest some wine taste very sweet(sweetness may be from fruit).  
+Summary of the physicochemical results in the dataset. All these variables are numerical. As showed in this chart. Values of some variables are very stable and some have diverse distribution. For example, all the density is very similar and residual sugar are range from 0.6 - 65.800. And some variables tell some facts about the wine. pH is all below 4 suggest that the wine contains acid. And the very different kind of sugar level suggest some wine taste very sweet(sweetness may be from fruit). 
 ```{r}
 summary(white_wine[,2:12])
 ```
@@ -58,16 +59,29 @@ ggplot(data = white_wine, aes(x = factor(1), fill = ordered_quality)) +
  coord_polar(theta = "y")
 ```
 
-Above features of the variable quality suggest that the grades of Vinho Verde are very concentrated. Based on these observations, I divided the wines into three categories by the high drops of numbers of wines from grade 5 to 4 and from 7 to 8. I name these three categories "low"(grade 3 and 4), "normal"(grade 5, 6 and 7) and "high"(grade 8 and 9).
+Above features of the variable quality suggest that the grades of Vinho Verde are very concentrated. Based on these observations, I divided the wines into three categories by the high drops of numbers of wines from grade 5 to 4 and from 7 to 8. I name these three categories "low"(grade 3 and 4), "normal"(grade 5, 6 and 7) and "high"(grade 8 and 9). It can be seen from the table and the pir chart of the distribution of three categories. low and high almost contain the same number of wines and most wines have quality normal. 
 ```{r}
-white_wine$ordered_catrgory <- white_wine$ordered_quality
-levels(white_wine$ordered_catrgory) <- c("low", "low", "low","low","normal","normal","normal","high","high","high")
-table(white_wine$ordered_catrgory)
+white_wine$ordered_category <- white_wine$ordered_quality
+levels(white_wine$ordered_category) <- c("low", "low", "low","low","normal","normal","normal","high","high","high")
+table(white_wine$ordered_category)
+ggplot(data = white_wine, aes(x = factor(1), fill = ordered_category)) +
+ geom_bar(width = 1) + 
+ coord_polar(theta = "y")
 ```
 
+From above univariate analysis, the following analysis will be on two levels, categories and sub-categories. Analysis of categories is aiming to distinguish low, normal and high quality of Vinho Verde wines. And analysis of sub-categories is to identify differences of grades in the same category. The main content is to find differences between grade 5, 6 and 7 in normal quality. 
+
 ## **Bivariate Analysis**
+ First comparison of normalized 11 physicochemical variables. Some variables have many outliers( chlorides and volatile.acidity) and some few outliers( alcohol and density).  It is also interesting to see the patterns of the outliers. Some outliers are distributed in a broad range. These outliers are from variable chlorides, volatile.acidity and free.sulfur.dioxide. Some outliers are centered around a relative some range. These outliers are from variable pH, sulphates and fixed.acidity. The broad range of outlier may indicate different levels of some chemical substances which occures in many measurements of chemical experiment. The clustered outliers can give more informative story about the chemical composition in the wines. The thoery is that majority of white Vinho Verde show a normal level of certain chemical feature. And there are minority of  white Vinho Verde whose level of that chemical feature behave in a different way.  
+ 
+```{r message=FALSE, warning=FALSE, fig.height = 10, fig.width=15}
+ggplot(melt(as.data.frame(scale(white_wine[,2:12]))),aes(x = variable,y = value)) + geom_boxplot()+scale_y_continuous(limits = c(-2,15))
+```
+
 ## **Multivariate Analysis**
+
 ## **Final Plots and Summary**
+
 ## **Reflection**
 
 
