@@ -8,6 +8,7 @@ output: html_document
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 library(ggplot2)
 library(reshape)
+library(gridExtra)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -76,6 +77,18 @@ From above univariate analysis, the following analysis will be on two levels, ca
  
 ```{r message=FALSE, warning=FALSE, fig.height = 10, fig.width=15}
 ggplot(melt(as.data.frame(scale(white_wine[,2:12]))),aes(x = variable,y = value)) + geom_boxplot()+scale_y_continuous(limits = c(-2,15))
+```
+
+Let us begin with these features whose outliers clustered together. They are pH, sulphates and fixed.acidity.
+
+```{r}
+p_ph_1 = ggplot(data = white_wine, aes(x = ordered_category, y = pH)) + geom_boxplot()
+p_ph_2 = ggplot(data = white_wine, aes(x = ordered_quality, y = pH)) + geom_boxplot()
+p_sulphates_1 = ggplot(data = white_wine, aes(x = ordered_category, y = sulphates)) + geom_boxplot()
+p_sulphates_2 = ggplot(data = white_wine, aes(x = ordered_quality, y = sulphates)) + geom_boxplot()
+p_fixed_acidity_1 = ggplot(data = white_wine, aes(x = ordered_category, y = fixed.acidity)) + geom_boxplot()
+p_fixed_acidity_2 = ggplot(data = white_wine, aes(x = ordered_quality, y = fixed.acidity)) + geom_boxplot()
+grid.arrange(p_ph_1, p_ph_2, p_sulphates_1, p_sulphates_2, p_fixed_acidity_1,  p_fixed_acidity_2, nrow=3, ncol = 2)
 ```
 
 ## **Multivariate Analysis**
