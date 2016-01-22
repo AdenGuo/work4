@@ -187,6 +187,7 @@ grid.arrange(p_volatile.acidity, p_citric.acid, p_residual.sugar, p_chlorides, p
 </div>
 <div id="multivariate-analysis" class="section level2">
 <h2><strong>Multivariate Analysis</strong></h2>
+<p>The paired draw of these variables shows some interesting properties besides their relations with wine quality as mentioned in last chapter. The first one is the correlation of variables. It can be seen from picture that a linear correlation exists in variable density and alcohol. Wines having high alcohol tend to have low density. Similar and not apparent relation exists in variable alcohol and chlorides.</p>
 <pre class="r"><code>var_names &lt;- c(&quot;pH&quot;, &quot;free.sulfur.dioxide&quot;, &quot;chlorides&quot;, &quot;density&quot;, &quot;alcohol&quot;, &quot;ordered_quality&quot;, &quot;ordered_category&quot;)
 white_wine_subset = newdata &lt;- white_wine[var_names]
 ggpairs(white_wine_subset)</code></pre>
