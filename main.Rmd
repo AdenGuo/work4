@@ -9,6 +9,7 @@ output: html_document
 library(ggplot2)
 library(reshape)
 library(gridExtra)
+library(GGally)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -73,25 +74,56 @@ ggplot(data = white_wine, aes(x = factor(1), fill = ordered_category)) +
 From above univariate analysis, the following analysis will be on two levels, categories and sub-categories. Analysis of categories is aiming to distinguish low, normal and high quality of Vinho Verde wines. And analysis of sub-categories is to identify differences of grades in the same category. The main content is to find differences between grade 5, 6 and 7 in normal quality. 
 
 ## **Bivariate Analysis**
- First comparison of normalized 11 physicochemical variables. Some variables have many outliers( chlorides and volatile.acidity) and some few outliers( alcohol and density).  It is also interesting to see the patterns of the outliers. Some outliers are distributed in a broad range. These outliers are from variable chlorides, volatile.acidity and free.sulfur.dioxide. Some outliers are centered around a relative some range. These outliers are from variable pH, sulphates and fixed.acidity. The broad range of outlier may indicate different levels of some chemical substances which occures in many measurements of chemical experiment. The clustered outliers can give more informative story about the chemical composition in the wines. The thoery is that majority of white Vinho Verde show a normal level of certain chemical feature. And there are minority of  white Vinho Verde whose level of that chemical feature behave in a different way.  
+ First comparison of normalized 11 physicochemical variables. Some variables have many outliers( chlorides and volatile.acidity) and some few outliers( alcohol and density).  It is also interesting to see the patterns of the outliers. Some outliers are distributed in a broad range. These outliers are from variable chlorides, volatile.acidity and free.sulfur.dioxide. Some outliers are centered around a relative small range. These outliers are from variable pH, sulphates and fixed.acidity. The broad range of outliers may indicate different levels of some chemical substances which occures in many measurements of chemical experiment. The clustered outliers can give more informative story about the chemical composition in the wines. The thoery is that majority of white Vinho Verde show a normal level of certain chemical feature. And there are minority of  white Vinho Verde whose level of that chemical feature behave in a different way.  
  
 ```{r message=FALSE, warning=FALSE, fig.height = 10, fig.width=15}
 ggplot(melt(as.data.frame(scale(white_wine[,2:12]))),aes(x = variable,y = value)) + geom_boxplot()+scale_y_continuous(limits = c(-2,15))
 ```
 
-Let us begin with these features whose outliers clustered together. They are pH, sulphates and fixed.acidity.
+Let us begin with these features whose outliers clustered together. They are pH, sulphates and fixed.acidity. From the following figures, different quality of categories may have the different pH. And the difference of the other two variables is not as obvious as that of pH. The values of pH confirms the thoery mentioned before. Some high pH value wine is clustered and most wine has lower pH value. Furthermore wine with high pH value belong to high quality category. There is another subtle observation need to be examined in a further step. For variable fixed.acidity there is a little peak in front of density line of high quality. This could mean different sub levels in high quality.   
 
-```{r}
+```{r fig.height = 10, fig.width=15}
 p_ph_1 = ggplot(data = white_wine, aes(x = ordered_category, y = pH)) + geom_boxplot()
-p_ph_2 = ggplot(data = white_wine, aes(x = ordered_quality, y = pH)) + geom_boxplot()
+p_ph_2 = ggplot(data = white_wine, aes(pH, fill = ordered_category)) + geom_density(alpha = 0.2)
 p_sulphates_1 = ggplot(data = white_wine, aes(x = ordered_category, y = sulphates)) + geom_boxplot()
-p_sulphates_2 = ggplot(data = white_wine, aes(x = ordered_quality, y = sulphates)) + geom_boxplot()
+p_sulphates_2 = ggplot(data = white_wine, aes(sulphates, fill = ordered_category)) + geom_density(alpha = 0.2)
 p_fixed_acidity_1 = ggplot(data = white_wine, aes(x = ordered_category, y = fixed.acidity)) + geom_boxplot()
-p_fixed_acidity_2 = ggplot(data = white_wine, aes(x = ordered_quality, y = fixed.acidity)) + geom_boxplot()
+p_fixed_acidity_2 = ggplot(data = white_wine, aes(fixed.acidity, fill = ordered_category)) + geom_density(alpha = 0.2)
 grid.arrange(p_ph_1, p_ph_2, p_sulphates_1, p_sulphates_2, p_fixed_acidity_1,  p_fixed_acidity_2, nrow=3, ncol = 2)
 ```
 
+Sub-categories boxp[lot] of ph and fixed.acidity is as following. As the boxplot reveals. The grades of wines veries with pH. And the highest grade of the wine(grade 9) has more fixed acidity in it. However, the analysis of any data related to grade 9 should carefully carried out. Since there are only 5 wines are rated 9. 
+```{r fig.height = 10, fig.width=15}
+p_ph_1 = ggplot(data = white_wine, aes(x = ordered_quality, y = pH)) + geom_boxplot()
+p_fixed_acidity_1 = ggplot(data = white_wine, aes(x = ordered_quality, y = fixed.acidity)) + geom_boxplot()
+grid.arrange(p_ph_1, p_fixed_acidity_1, nrow=2, ncol = 1)
+```
+
+The remaining 8 variables are also analyzed. The density plot is as following. To discriminate low quality with other quality, the variable free.sulfur.dioxide make sense. And the differences of high quality and other quality can be seen from variable chlorides, density and alcohol. 
+
+```{r fig.height = 20, fig.width=15}
+p_volatile.acidity = ggplot(data = white_wine, aes(volatile.acidity, ..density.., colour = ordered_category)) + geom_density()
+p_citric.acid = ggplot(data = white_wine, aes(citric.acid, ..density.., colour = ordered_category)) + geom_density()
+p_residual.sugar = ggplot(data = white_wine, aes(residual.sugar, ..density.., colour = ordered_category)) + geom_density()
+p_chlorides = ggplot(data = white_wine, aes(chlorides, ..density.., colour = ordered_category)) + geom_density()
+p_free.sulfur.dioxide = ggplot(data = white_wine, aes(free.sulfur.dioxide, ..density.., colour = ordered_category)) + geom_density()
+p_total.sulfur.dioxide = ggplot(data = white_wine, aes(total.sulfur.dioxide, ..density.., colour = ordered_category)) + geom_density()
+p_density = ggplot(data = white_wine, aes(density, ..density.., colour = ordered_category)) + geom_density()
+p_alcohol = ggplot(data = white_wine, aes(alcohol, ..density.., colour = ordered_category)) + geom_density()
+grid.arrange(p_volatile.acidity, p_citric.acid, p_residual.sugar, p_chlorides, p_free.sulfur.dioxide,  p_total.sulfur.dioxide, p_density, p_alcohol, nrow=8)
+```
+
+In the bivariate analysis, several variables are identified to be useful in analysis of wine quality. These variables are pH, free.sulfur.dioxide, chlorides, density and alcohol. Following analysis will concentrate on relationship of these variables and wine quality.
+
 ## **Multivariate Analysis**
+
+
+```{r message=FALSE, warning=FALSE, fig.height = 15, fig.width=15}
+var_names <- c("pH", "free.sulfur.dioxide", "chlorides", "density", "alcohol", "ordered_quality", "ordered_category")
+white_wine_subset = newdata <- white_wine[var_names]
+ggpairs(white_wine_subset)
+```
+
 
 ## **Final Plots and Summary**
 
