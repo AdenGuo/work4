@@ -117,7 +117,7 @@ In the bivariate analysis, several variables are identified to be useful in anal
 
 ## **Multivariate Analysis**
 
-The paired draw of these variables shows some interesting properties besides their relations with wine quality as mentioned in last chapter. The first one is the correlation of variables. It can be seen from picture that a linear correlation exists in variable density and alcohol. Wines having high alcohol tend to have low density. Similar and not apparent relation exists in variable alcohol and chlorides. 
+The paired draw of these variables shows some interesting properties besides their relations with wine quality as mentioned in last chapter. The first one is the correlation of variables. It can be seen from picture that a linear correlation exists in variable density and alcohol. Wines having high alcohol tend to have low density. Similar but not apparent relation exists in variable alcohol and chlorides. 
 ```{r message=FALSE, warning=FALSE, fig.height = 15, fig.width=15}
 var_names <- c("pH", "free.sulfur.dioxide", "chlorides", "density", "alcohol", "ordered_quality", "ordered_category")
 white_wine_subset = newdata <- white_wine[var_names]
