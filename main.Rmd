@@ -10,6 +10,7 @@ library(ggplot2)
 library(reshape)
 library(gridExtra)
 library(GGally)
+library(dplyr)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -117,11 +118,94 @@ In the bivariate analysis, several variables are identified to be useful in anal
 
 ## **Multivariate Analysis**
 
-The paired draw of these variables shows some interesting properties besides their relations with wine quality as mentioned in last chapter. The first one is the correlation of variables. It can be seen from picture that a linear correlation exists in variable density and alcohol. Wines having high alcohol tend to have low density. Similar but not apparent relation exists in variable alcohol and chlorides. 
+The paired draw of these variables shows some interesting properties besides their relations with wine quality as mentioned in last chapter. The first one is the correlation of variables. It can be seen from picture that a linear correlation exists in variable density and alcohol. Wines having high alcohol tend to have low density. Similar but not apparent relation exists in variable alcohol and chlorides. The correlations between these variables indicate that these variable may contribute to the wine quality in the same manner. 
 ```{r message=FALSE, warning=FALSE, fig.height = 15, fig.width=15}
 var_names <- c("pH", "free.sulfur.dioxide", "chlorides", "density", "alcohol", "ordered_quality", "ordered_category")
 white_wine_subset = newdata <- white_wine[var_names]
 ggpairs(white_wine_subset)
+```
+
+The next plot shows some relations between wine quality and variables pH and alcohol. Due to large number of normal quality, the visualization is not definitely clear. Howewver, we can still show some variations of pH and alcohol according to different categories of wines. First, the high quality wines tend to have high alcohol value and low quality wines low alcohol value. Second, it is very hard to tell any difference of pH of low and normal quality and the pH of high quality is slightly bigger than that of other two qualities of wine.    
+```{r fig.height = 10, fig.width=10}
+ggplot(data = white_wine_subset, aes(alcohol, pH)) + geom_point(aes(size = ordered_category, colour = ordered_category, shape = ordered_category), alpha = 0.7)
+```
+
+The following figure can help to identify the difference of low and other two quality of wine by looking at the variable free.sulfur.dioxide. It is obvious that most low quality wine have low value of free.sulfur.dioxide. And high quality wine also have slightly high value of free.sulfur.dioxide. There are another observation need to be pointed out which is that the variation of free.sulfur.dioxide is more high than that of the other two qualities of wine. The most low quality wine of have relativey low free.sulfur.dioxide. But several low quality wine have the highest free.sulfur.dioxide in the whole collection of Vinho Verde wines. 
+```{r fig.height = 5, fig.width=10}
+ggplot(data = white_wine_subset, aes(alcohol, free.sulfur.dioxide)) + geom_point(aes(size = ordered_category, colour = ordered_category, shape = ordered_category), alpha = 0.7)
+```
+
+Another similar plot can be draw between wine quality and variable chlorides and density. Many high quality wine are located at left lower corner of the plot. The values of density and chlorides of high quality wine is lower than that of the other two qualities of wine. The two values of low quality wine don't stand out from the whole collection of wine. 
+```{r fig.height = 5, fig.width=10}
+ggplot(data = white_wine_subset, aes(chlorides, density)) + geom_point(aes(size = ordered_category, colour = ordered_category, shape = ordered_category), alpha = 0.5)
+```
+
+Further exploration of data is needed to clarify the above relations. The difficulties arise from the unbalanced number of normal quality wines and the other two categories of wine. The way I addressed this problem is by ratios. Since most of wines are in normal quality. I will compare the ratio of low or high quality wines to normal quality wines in the different intelvals of various variables. 
+```{r}
+ratio_data_category <- function(data_frame, variable, breaks_number) {
+  data_frame$variable_bucket <- cut(variable, breaks = breaks_number,  labels = FALSE, ordered_result = TRUE)
+  group_data <- group_by(data_frame, ordered_category, variable_bucket)
+  summarised_data <- summarise(group_data, n = n())
+  intervel_levels <- unique(summarised_data$variable_bucket)
+  low_ratio = c()
+  high_ratio = c()
+  normal_number = c()
+  levels_number = c()
+  for (level in intervel_levels){
+    normal_level_count <- subset(summarised_data, summarised_data$variable_bucket == level & summarised_data$ordered_category == 'normal' )
+    low_level_count <- subset(summarised_data, summarised_data$variable_bucket == level & summarised_data$ordered_category == 'low' )
+    high_level_count <- subset(summarised_data, summarised_data$variable_bucket == level & summarised_data$ordered_category == 'high')
+    if (nrow(normal_level_count) > 0){
+      normal_level_count <- normal_level_count$n
+    }else{
+      normal_level_count <- 1
+    }
+    if (nrow(low_level_count) > 0){
+      low_level_count <- low_level_count$n
+    }else{
+      low_level_count <- 0
+    }
+    if (nrow(high_level_count) > 0){
+      high_level_count <- high_level_count$n
+    }else{
+      high_level_count <- 0
+    }
+    low_ratio <- c(low_ratio, low_level_count/normal_level_count)
+    high_ratio <- c(high_ratio, high_level_count/normal_level_count)
+  }
+  final_data <- data.frame(variale_intervel = intervel_levels, low_ratio = low_ratio, high_ratio = high_ratio)
+  return(final_data)
+}
+
+pH_ratio <- ratio_data_category(white_wine_subset, white_wine_subset$pH, 8)
+ggplot(pH_ratio, aes(x = variale_intervel)) + 
+          geom_smooth(aes(y = high_ratio, colour = "high quality ratio"), se = FALSE) + 
+          geom_smooth(aes(y = low_ratio, colour = "low quality ratio"), se = FALSE) +
+          scale_colour_manual("quality ratio", 
+                      values = c("high quality ratio" = "red", "low quality ratio" = "blue")) 
+
+white_wine_subset_remove <- subset(white_wine_subset, white_wine_subset$free.sulfur.dioxide < quantile(white_wine_subset$free.sulfur.dioxide, 0.95))
+free.sulfur.dioxide_ratio <- ratio_data_category(white_wine_subset_remove, white_wine_subset_remove$free.sulfur.dioxide, 10)
+ggplot(free.sulfur.dioxide_ratio, aes(x = variale_intervel)) + 
+          geom_smooth(aes(y = high_ratio, colour = "high quality ratio"), se = FALSE) + 
+          geom_smooth(aes(y = low_ratio, colour = "low quality ratio"), se = FALSE) +
+          scale_colour_manual("quality ratio", 
+                      values = c("high quality ratio" = "red", "low quality ratio" = "blue"))
+
+alcohol_ratio <- ratio_data_category(white_wine_subset, white_wine_subset$alcohol, 10)
+ggplot(alcohol_ratio, aes(x = variale_intervel)) + 
+          geom_smooth(aes(y = high_ratio, colour = "high quality ratio"), se = FALSE) + 
+          geom_smooth(aes(y = low_ratio, colour = "low quality ratio"), se = FALSE) +
+          scale_colour_manual("quality ratio", 
+                      values = c("high quality ratio" = "red", "low quality ratio" = "blue"))
+
+white_wine_subset_remove <- subset(white_wine_subset, white_wine_subset$chlorides < quantile(white_wine_subset$chlorides, 0.95))
+chlorides_ratio <- ratio_data_category(white_wine_subset_remove, white_wine_subset_remove$chlorides, 10)
+ggplot(chlorides_ratio, aes(x = variale_intervel)) + 
+          geom_smooth(aes(y = high_ratio, colour = "high quality ratio"), se = FALSE) + 
+          geom_smooth(aes(y = low_ratio, colour = "low quality ratio"), se = FALSE) +
+          scale_colour_manual("quality ratio", 
+                      values = c("high quality ratio" = "red", "low quality ratio" = "blue"))
 ```
 
 
