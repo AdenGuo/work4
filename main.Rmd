@@ -145,6 +145,8 @@ ggplot(data = white_wine_subset, aes(chlorides, density)) + geom_point(aes(size 
 ```
 
 Further exploration of data is needed to clarify the above relations. The difficulties arise from the unbalanced number of normal quality wines and the other two categories of wine. The way I addressed this problem is by ratios. Since most of wines are in normal quality. I will compare the ratio of low or high quality wines to normal quality wines in the different intelvals of various variables. 
+
+The following plot is the comparison of the ratios of high quality and low quality in different intervals of pH values. The x axis is the intervals of the ph values. I have projected the actual intervals on integers. The values of these integers only indicate relative values of the intervals. For example, integer 2 may indicate interval (4,4.5] and integer 1 is (3.5,4]. Y axis is the ratio of high or low quality to normal quality counts in that corresponding interval. As We can see from the plot, high quality wine have more fluctuation than low quality across the whole interval of ph value. This means the the ratio of counts of low quality wines to normal quality is relatively stable when the ph value varies. And for high quality wine, the ratio is very high when the value of pH is high. There are two clear signals in this picture. The first one is the variation of the ratios. This signal can show the relation between normal quality of wine and other two wines. The second one is the contrast of two lines. This contrast can clearly show the difference of chemical levels of low and high quality wines.
 ```{r}
 ratio_data_category <- function(data_frame, variable, breaks_number) {
   data_frame$variable_bucket <- cut(variable, breaks = breaks_number,  labels = FALSE, ordered_result = TRUE)
@@ -190,6 +192,7 @@ ggplot(pH_ratio, aes(x = variale_intervel)) +
 
 ```
 
+The next plot is about the variable free.sulfur.dioxide. From the drawing, we can conclude that the variable is less useful to indicate high quality wine than low quality wine. And for low quality wine the value of free.sulfur.dioxide is concentrated on lower intervals. 
 ```{r}
 white_wine_subset_remove <- subset(white_wine_subset, white_wine_subset$free.sulfur.dioxide < quantile(white_wine_subset$free.sulfur.dioxide, 0.95))
 free.sulfur.dioxide_ratio <- ratio_data_category(white_wine_subset_remove, white_wine_subset_remove$free.sulfur.dioxide, 10)
@@ -199,6 +202,10 @@ ggplot(free.sulfur.dioxide_ratio, aes(x = variale_intervel)) +
           scale_colour_manual("quality ratio", 
                       values = c("high quality ratio" = "red", "low quality ratio" = "blue"))
 
+```
+
+The plot of variable alcohol is even more informative. The curves of low and high quality wines both have big variation across the whole interval of the alcohol. And for low quality wines, the ratio is high for low alcohol value. For high quality wines, the ratio is high fo high alcohol value. 
+```{r}
 alcohol_ratio <- ratio_data_category(white_wine_subset, white_wine_subset$alcohol, 10)
 ggplot(alcohol_ratio, aes(x = variale_intervel)) + 
           geom_smooth(aes(y = high_ratio, colour = "high quality ratio"), se = FALSE) + 
@@ -206,6 +213,11 @@ ggplot(alcohol_ratio, aes(x = variale_intervel)) +
           scale_colour_manual("quality ratio", 
                       values = c("high quality ratio" = "red", "low quality ratio" = "blue"))
 
+```
+
+
+The influence on quality of variable chlorides can also be shown on the following figure. Both high and low quality wines have low value of chlorides. And it is difficult using this picture to distinguish low and high quality wines.
+```{r}
 white_wine_subset_remove <- subset(white_wine_subset, white_wine_subset$chlorides < quantile(white_wine_subset$chlorides, 0.95))
 chlorides_ratio <- ratio_data_category(white_wine_subset_remove, white_wine_subset_remove$chlorides, 10)
 ggplot(chlorides_ratio, aes(x = variale_intervel)) + 
@@ -215,6 +227,7 @@ ggplot(chlorides_ratio, aes(x = variale_intervel)) +
                       values = c("high quality ratio" = "red", "low quality ratio" = "blue"))
 
 ```
+
 
 ```{r webgl=TRUE}
 example(plot3d)
