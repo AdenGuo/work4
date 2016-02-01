@@ -11,6 +11,10 @@ library(reshape)
 library(gridExtra)
 library(GGally)
 library(dplyr)
+library(knitr)
+library(rgl)
+library(rglwidget)
+knit_hooks$set(webgl = hook_webgl)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -184,6 +188,9 @@ ggplot(pH_ratio, aes(x = variale_intervel)) +
           scale_colour_manual("quality ratio", 
                       values = c("high quality ratio" = "red", "low quality ratio" = "blue")) 
 
+```
+
+```{r}
 white_wine_subset_remove <- subset(white_wine_subset, white_wine_subset$free.sulfur.dioxide < quantile(white_wine_subset$free.sulfur.dioxide, 0.95))
 free.sulfur.dioxide_ratio <- ratio_data_category(white_wine_subset_remove, white_wine_subset_remove$free.sulfur.dioxide, 10)
 ggplot(free.sulfur.dioxide_ratio, aes(x = variale_intervel)) + 
@@ -206,8 +213,13 @@ ggplot(chlorides_ratio, aes(x = variale_intervel)) +
           geom_smooth(aes(y = low_ratio, colour = "low quality ratio"), se = FALSE) +
           scale_colour_manual("quality ratio", 
                       values = c("high quality ratio" = "red", "low quality ratio" = "blue"))
+
 ```
 
+```{r webgl=TRUE}
+example(plot3d)
+
+```
 
 ## **Final Plots and Summary**
 
