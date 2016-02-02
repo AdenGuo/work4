@@ -14,6 +14,7 @@ library(dplyr)
 library(knitr)
 library(rgl)
 library(rglwidget)
+library(spatstat)
 knit_hooks$set(webgl = hook_webgl)
 ```
 
@@ -228,13 +229,40 @@ ggplot(chlorides_ratio, aes(x = variale_intervel)) +
 
 ```
 
-
+The next 
 ```{r webgl=TRUE}
-example(plot3d)
+white_wine_subset$pH_bucket <- cut(white_wine_subset$pH, breaks = 4,  labels = FALSE, ordered_result = TRUE)
+white_wine_subset$alcohol_bucket <- cut(white_wine_subset$alcohol, breaks = 5,  labels = FALSE, ordered_result = TRUE)
+group_data <- group_by(white_wine_subset, ordered_category, pH_bucket, alcohol_bucket)
+summarised_data <- summarise(group_data, n = n())
+ph_interval <- unique(summarised_data$pH_bucket)
+alcohol_interval <- unique(summarised_data$alcohol_bucket)
+ratio <- matrix(nrow = length(ph_interval), ncol = length(alcohol_interval))
+for (ph_level in ph_interval)
+  for (alcohol_level in alcohol_interval){
+    normal_level_count <- subset(summarised_data, summarised_data$pH_bucket == ph_level & summarised_data$alcohol_bucket == alcohol_level  & summarised_data$ordered_category == 'normal')
+    high_level_count <- subset(summarised_data, summarised_data$pH_bucket == ph_level & summarised_data$alcohol_bucket == alcohol_level  & summarised_data$ordered_category == 'high')
+    if (nrow(normal_level_count) > 0){
+      normal_level_count <- normal_level_count$n
+    }else{
+      normal_level_count <- 1
+    }
+    if (nrow(high_level_count) > 0){
+      high_level_count <- high_level_count$n
+    }else{
+      high_level_count <- 0
+    }
+    ratio[ph_level, alcohol_level] <- high_level_count/normal_level_count
+    print(ratio[ph_level, alcohol_level])
+  }
 
+ratio_smooth <- as.matrix(blur(as.im(ratio), sigma=1))
+persp3d(ph_interval, alcohol_interval,  ratio_smooth, col = cm.colors(100))
 ```
 
 ## **Final Plots and Summary**
+
+### Plot 1 Common Quality of 
 
 ## **Reflection**
 
