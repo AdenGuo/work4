@@ -229,7 +229,7 @@ ggplot(chlorides_ratio, aes(x = variale_intervel)) +
 
 ```
 
-The next 
+The next 3D interative plotting clearly show some features of high quality wine. The variables involved are pH and alcohol. The two axis of the mesh are intervals of Ph and alcohol. The value of the plotting is smoothed ratio of counts of high quality wines to that of normal wines. As we can see from the plotting, the ratio is getting bigger toward the corner in where the highest values of pH and alcohol lay. That is, for white wines of Vinho Verde, the high pH and alcohol value indicate higher possibility of high quality wine.
 ```{r webgl=TRUE}
 white_wine_subset$pH_bucket <- cut(white_wine_subset$pH, breaks = 4,  labels = FALSE, ordered_result = TRUE)
 white_wine_subset$alcohol_bucket <- cut(white_wine_subset$alcohol, breaks = 5,  labels = FALSE, ordered_result = TRUE)
@@ -253,7 +253,6 @@ for (ph_level in ph_interval)
       high_level_count <- 0
     }
     ratio[ph_level, alcohol_level] <- high_level_count/normal_level_count
-    print(ratio[ph_level, alcohol_level])
   }
 
 ratio_smooth <- as.matrix(blur(as.im(ratio), sigma=1))
@@ -262,7 +261,64 @@ persp3d(ph_interval, alcohol_interval,  ratio_smooth, col = cm.colors(100))
 
 ## **Final Plots and Summary**
 
-### Plot 1 Common Quality of 
+### Plot 1 Common Quality of Wines
+
+The most important fact is conveyed by this pie plot. Almost all the white wines of Vinho Verde have similar qualities. I think this result due to the fact that wines all cames from a small area of Portugal and the quality is strictly controlled by official organization of Vinho Verde. 
+```{r fig.height = 5, fig.width=10}
+cols <- c("low" = "red","normal" = "blue","high" = "orange")
+blank_theme <- theme_minimal()+
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.border = element_blank(),
+    panel.grid=element_blank(),
+    axis.ticks = element_blank(),
+    plot.title=element_text(size=20, face="bold"),
+    legend.text = element_text(size=14, face="bold"),
+    legend.title = element_text(size=16, face="bold"),
+    legend.background=element_rect(fill = "transparent",colour='lightblue')
+  )
+ggplot(data = white_wine, aes(x = factor(1), fill = ordered_category)) +
+  geom_bar(width = 1) + 
+  coord_polar(theta = "y", start=0) +
+  xlab('') +
+  ylab('') +
+  scale_fill_manual('Categories of Wine Quality', values = cols, breaks = c("low", "normal", "high"), labels = c("Low Quality (Grade 1, 2, 3 and 4)", "Normal Quality (Grade 5, 6 and 7)", "High Quality(Grade 8 and 9)")) +
+  labs(title = "Pie Chart of Different Wine Qualities") + 
+  blank_theme + 
+  theme(axis.text.x=element_blank()) 
+```
+
+### Plot 2 Alcohol of Wines
+
+```{r fig.height = 5, fig.width=10}
+cols <- c("low" = "red","normal" = "blue","high" = "orange")
+blank_theme <- theme_minimal()+
+  theme(
+    axis.text = element_blank(),
+    plot.title=element_text(size=20, face="bold"),
+    legend.text = element_text(size=14, face="bold"),
+    legend.title = element_text(size=16, face="bold"),
+    axis.title = element_text(size=16),
+    legend.background=element_rect(fill = "transparent",colour='lightblue')
+  )
+p_boxplot = ggplot(data = white_wine, aes(x = ordered_category, y = alcohol)) + 
+  geom_boxplot(aes(fill= ordered_category)) + 
+  xlab('') + 
+  ylab('Alcohol (% by volume)') + 
+  scale_fill_manual('Categories of Wine Quality', values = cols, breaks = c("low", "normal", "high"), labels = c("Low Quality (Grade 1, 2, 3 and 4)", "Normal Quality (Grade 5, 6 and 7)", "High Quality(Grade 8 and 9)")) + 
+  labs(title = "Alcohol By Wine Qualities") + 
+  blank_theme 
+p_density = ggplot(data = white_wine, aes(alcohol, ..density..)) + 
+  geom_density(aes(colour = ordered_category)) + 
+  xlab('Alcohol (% by volume)') + 
+  ylab('Density') + 
+  scale_colour_manual('Categories of Wine Quality', values = cols, breaks = c("low", "normal", "high"), labels = c("Low Quality (Grade 1, 2, 3 and 4)", "Normal Quality (Grade 5, 6 and 7)", "High Quality(Grade 8 and 9)")) + 
+  labs(title = "Density Plot of Alcohol By Wine Qualities") + 
+  blank_theme   
+grid.arrange(p_boxplot,p_density, nrow=2)
+```
+
 
 ## **Reflection**
 
