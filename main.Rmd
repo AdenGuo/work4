@@ -291,6 +291,7 @@ ggplot(data = white_wine, aes(x = factor(1), fill = ordered_category)) +
 
 ### Plot 2 Alcohol of Wines
 
+The following figure show the relationship between alcohol and wine quality. The difference of alcohol in different qualities of wine is obvious. The high quality wine tends to have high alcohol.
 ```{r fig.height = 5, fig.width=10}
 cols <- c("low" = "red","normal" = "blue","high" = "orange")
 blank_theme <- theme_minimal()+
@@ -319,7 +320,40 @@ p_density = ggplot(data = white_wine, aes(alcohol, ..density..)) +
 grid.arrange(p_boxplot,p_density, nrow=2)
 ```
 
+### Plot 3 Ratios of Counts of Wines
+
+This figure is used to resolve the unbalanced counts of normal quality wines and the other two categories of wines. The ratio variation clearly shows that for each different pH intervals the ratios of counts of high quality wine to that of normal ones are quite different. And the comparison of red and blue line tells difference of high and low quality wine. In this plot, high quality wine tends to stay in the high value of pH intervals. And the variation of ratios of low quality wines is not apparent to make the pH value a good feature predicting low quality wine.  
+```{r fig.height = 5, fig.width=10}
+blank_theme <- theme_minimal()+
+  theme(
+    plot.title=element_text(size=20, face="bold"),
+    legend.text = element_text(size=14, face="bold"),
+    legend.title = element_text(size=16, face="bold"),
+    axis.title = element_text(size=16),
+    legend.background=element_rect(fill = "transparent",colour='lightblue')
+  )
+ggplot(pH_ratio, aes(x = variale_intervel)) + 
+  geom_smooth(aes(y = high_ratio, colour = "High Quality to Normal"), se = FALSE) + 
+  geom_smooth(aes(y = low_ratio, colour = "Low Quality to Normal"), se = FALSE) +
+  xlab('Sorted pH Intervals (Represented by Sorted Integers)') + 
+  ylab('Counts Ratios') + 
+  labs(title = "Counts Ratios Versus Intervals of pH") + 
+  scale_colour_manual("Ratios of Counts", 
+                      values = c("High Quality to Normal" = "red", "Low Quality to Normal" = "blue")) + 
+  blank_theme
+```
 
 ## **Reflection**
 
+Before I do this project, I know nothing about wines. And now I learned something about white wines of Vinho Verde from the dataset. 
+
+The dataset in consist of 4898 items of wines. The information of wines contains 11 measured physicochemical values and 1 grade given by human expert. I have done some analysis to explore the relationships of physicochemical values and the grade of wines.
+
+The first problem I encountered is how to treat the most important variable, grade of wine. Although the grade is represented by integer numbers (1-10). I think treating the grade as a numeric value could be misleading. The number itself contains no information of the grade. I treat the grades as factors. Furthermore, the grade is given by human. That means the border of adjacent grade may be very blurring. People may tell very strong evidence to distinguish grade 9 from grade 3. However, the difference of grade 5 and grade 6 may be subtle and subjective. So to clearly show the differences of various grades of wines, I decided to combine 9 grades into 3 major categories. 
+
+I think the analysis of the single variale, quality, has already bring me plenty of information. The first is most white wines of Vinho Verde are on the similar grade. And the second is that few wines have terrible or perfect quality for Vinho Verde. I believe that the reason for the consistant quality of Vinho Verde may be due to the quality control of official Vinho Verde organization. And the reason why there are no perfect wine in 4898 wines is that the Vinho Verde is always cheap and fun. The perfect wine need to be serious and expensive. 
+
+The relations of various physicochemical values and categories of wines are also examined by boxplot and density plot. 5 of 11 variables are identified as useful to distinguish between categories. It should be awared that the boxplot and density plot have not shown the number of each categories of wines.  Since the accuracy and variance of the information convey by the plot highly depend on the number of data. The results from these plot should be examined in a more formal step such as hypothesis testing. For example, there are only 5 wines rated grade 9. The number is too small to give any definitive results from these points. 
+
+In the last part of analysis, I employ a method to clarify the difference of wines in three categories. The main idea is to use ratio as a measure of appearance of wines in certain category in a particular interval of a variable. Unbalanced numbers of normal quality wine and the other two categories of wines make it very hard to show the difference between them. I have tried many method to alleviate this problem. The ratio works best for presentation. 
 
