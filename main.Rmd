@@ -67,8 +67,13 @@ white_wine$ordered_quality <- factor(white_wine$quality, levels=c("1", "2", "3",
                                                                   "10"), 
                                      ordered = TRUE)
 table(white_wine$ordered_quality)
+blank_theme <- theme_minimal()+
+  theme(
+    axis.text = element_blank()
+  )
 ggplot(data = white_wine, aes(x = ordered_quality)) +
- geom_bar(aes(fill = ordered_quality))
+ geom_bar()
+
 ```
 
 Following is the pie chart of the qualities of wines. Grade 5, 6, 7 occupy most kinds of Vinho Verde. The number of wines which is graded below 5 or above 7 is very small compare to middle grades. 
@@ -78,7 +83,8 @@ ggplot(data = white_wine, aes(x = factor(1), fill = ordered_quality)) +
  coord_polar(theta = "y")
 ```
 
-Above features of the variable quality suggest that the grades of Vinho Verde are very concentrated. Based on these observations, I divided the wines into three categories by the high drops of numbers of wines from grade 5 to 4 and from 7 to 8. I name these three categories "low"(grade 3 and 4), "normal"(grade 5, 6 and 7) and "high"(grade 8 and 9). It can be seen from the table and the pir chart of the distribution of three categories. low and high almost contain the same number of wines and most wines have quality normal. 
+Above features of the variable quality suggest that the grades of Vinho Verde are very concentrated. Based on these observations, I divided the wines into three categories by the high drops of numbers of wines from grade 5 to 4 and from 7 to 8. I name these three categories "low"(grade 3 and 4), "normal"(grade 5, 6 and 7) and "high"(grade 8 and 9). It can be seen from the table and the pie chart of the distribution of three categories. low and high almost contain the same number of wines and most wines have quality normal. 
+
 ```{r}
 #Making three categories of wine qualities, low quality contains grade 1, 2, 3, 
 #  4, normal contains 5, 6, 7 and high 8, 9, 10
@@ -90,6 +96,45 @@ ggplot(data = white_wine, aes(x = factor(1), fill = ordered_category)) +
  geom_bar(width = 1) + 
  coord_polar(theta = "y")
 ```
+
+Next is histograms of all variables of the chemical content in the wine. There are several features need to be mentioned. First one is that distributions of most values follow a bell curve with a few outlier on the right side of the curve. Second is the distributions of residual.sugar and alcohol are far from standard bell curve. 
+```{r}
+ggplot(data = white_wine, aes(x = fixed.acidity)) +
+ geom_histogram()
+summary(white_wine$fixed.acidity)
+ggplot(data = white_wine, aes(x = volatile.acidity)) +
+ geom_histogram()
+summary(white_wine$volatile.acidity)
+ggplot(data = white_wine, aes(x = citric.acid)) +
+ geom_histogram()
+summary(white_wine$citric.acid)
+ggplot(data = white_wine, aes(x = residual.sugar)) +
+ geom_histogram()
+summary(white_wine$residual.sugar)
+ggplot(data = white_wine, aes(x = chlorides)) +
+ geom_histogram()
+summary(white_wine$chlorides)
+ggplot(data = white_wine, aes(x = free.sulfur.dioxide)) +
+ geom_histogram()
+summary(white_wine$free.sulfur.dioxide)
+ggplot(data = white_wine, aes(x = total.sulfur.dioxide)) +
+ geom_histogram()
+summary(white_wine$total.sulfur.dioxide)
+ggplot(data = white_wine, aes(x = density)) +
+ geom_histogram()
+summary(white_wine$density)
+ggplot(data = white_wine, aes(x = pH)) +
+ geom_histogram()
+summary(white_wine$pH)
+ggplot(data = white_wine, aes(x = sulphates)) +
+ geom_histogram()
+summary(white_wine$sulphates)
+ggplot(data = white_wine, aes(x = alcohol)) +
+ geom_histogram()
+summary(white_wine$alcohol)
+```
+
+
 
 From above univariate analysis, the following analysis will be on two levels, categories and sub-categories. Analysis of categories is aiming to distinguish low, normal and high quality of Vinho Verde wines. And analysis of sub-categories is to identify differences of grades in the same category. The main content is to find differences between grade 5, 6 and 7 in normal quality. 
 
@@ -190,21 +235,28 @@ The next plot shows some relations between wine quality and variables pH and alc
 ```{r}
 ggplot(data = white_wine_subset, aes(alcohol, pH)) + 
   geom_point(aes(size = ordered_category, colour = ordered_category, 
-                 shape = ordered_category), alpha = 0.7)
+                 alpha = ordered_category)) +
+  scale_size_manual(values = c(5, 5, 5)) + 
+  scale_alpha_manual(values = c(1, 0.05, 1))
 ```
 
 The following figure can help to identify the difference of low and other two quality of wine by looking at the variable free.sulfur.dioxide. It is obvious that most low quality wine have low value of free.sulfur.dioxide. And high quality wine also have slightly high value of free.sulfur.dioxide. There are another observation need to be pointed out which is that the variation of free.sulfur.dioxide is more high than that of the other two qualities of wine. The most low quality wine of have relativey low free.sulfur.dioxide. But several low quality wine have the highest free.sulfur.dioxide in the whole collection of Vinho Verde wines. 
 ```{r}
-ggplot(data = white_wine_subset, aes(alcohol, free.sulfur.dioxide)) + 
+white_wine_subset_remove <- subset(white_wine_subset, 
+                                   white_wine_subset$free.sulfur.dioxide < 
+                         quantile(white_wine_subset$free.sulfur.dioxide, 0.99))
+ggplot(data = white_wine_subset_remove, aes(alcohol, free.sulfur.dioxide)) + 
   geom_point(aes(size = ordered_category, colour = ordered_category, 
-                 shape = ordered_category), alpha = 0.7)
+                 alpha = ordered_category)) +
+  scale_size_manual(values = c(5, 5, 5)) + 
+  scale_alpha_manual(values = c(0.6, 0.05, 1))
 ```
 
 Another similar plot can be draw between wine quality and variable chlorides and density. Many high quality wine are located at left lower corner of the plot. The values of density and chlorides of high quality wine is lower than that of the other two qualities of wine. The two values of low quality wine don't stand out from the whole collection of wine. 
 ```{r}
 ggplot(data = white_wine_subset, aes(chlorides, density)) + 
   geom_point(aes(size = ordered_category, colour = ordered_category, 
-                 shape = ordered_category), alpha = 0.5)
+                 shape = ordered_category), alpha = 0.4)
 ```
 
 Further exploration of data is needed to clarify the above relations. The difficulties arise from the unbalanced number of normal quality wines and the other two categories of wine. The way I addressed this problem is by ratios. Since most of wines are in normal quality. I will compare the ratio of low or high quality wines to normal quality wines in the different intelvals of various variables. 
