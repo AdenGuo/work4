@@ -231,13 +231,17 @@ In the bivariate analysis, several variables are identified to be useful in anal
 
 ## **Multivariate Analysis**
 
-The next plot shows some relations between wine quality and variables pH and alcohol. Due to large number of normal quality, the visualization is not definitely clear. Howewver, we can still show some variations of pH and alcohol according to different categories of wines. First, the high quality wines tend to have high alcohol value and low quality wines low alcohol value. Second, it is very hard to tell any difference of pH of low and normal quality and the pH of high quality is slightly bigger than that of other two qualities of wine.    
+The next plot shows some relations between wine quality and variables pH and alcohol. The points in the dark circle is the median of variables of corresponding categories of wines. Due to large number of normal quality, the visualization is not definitely clear. Howewver, we can still show some variations of pH and alcohol according to different medians of categories of wines. First, the high quality wines tend to have high alcohol value and low quality wines low alcohol value. Second, it is very hard to tell any difference of pH of low and normal quality and the pH of high quality is slightly bigger than that of other two qualities of wine.    
 ```{r}
+#Calculate median as centroids
+centroids <- aggregate(cbind(alcohol,pH)~ordered_category,white_wine_subset,median)
 ggplot(data = white_wine_subset, aes(alcohol, pH)) + 
   geom_point(aes(size = ordered_category, colour = ordered_category, 
                  alpha = ordered_category)) +
   scale_size_manual(values = c(5, 5, 5)) + 
-  scale_alpha_manual(values = c(1, 0.05, 1))
+  scale_alpha_manual(values = c(1, 0.05, 1)) + 
+  geom_point(data=centroids, colour="black", size = 8) +
+  geom_point(data=centroids, aes(colour = ordered_category), size = 5)
 ```
 
 The following figure can help to identify the difference of low and other two quality of wine by looking at the variable free.sulfur.dioxide. It is obvious that most low quality wine have low value of free.sulfur.dioxide. And high quality wine also have slightly high value of free.sulfur.dioxide. There are another observation need to be pointed out which is that the variation of free.sulfur.dioxide is more high than that of the other two qualities of wine. The most low quality wine of have relativey low free.sulfur.dioxide. But several low quality wine have the highest free.sulfur.dioxide in the whole collection of Vinho Verde wines. 
@@ -245,18 +249,31 @@ The following figure can help to identify the difference of low and other two qu
 white_wine_subset_remove <- subset(white_wine_subset, 
                                    white_wine_subset$free.sulfur.dioxide < 
                          quantile(white_wine_subset$free.sulfur.dioxide, 0.99))
+centroids <- aggregate(cbind(free.sulfur.dioxide,alcohol)~ordered_category,
+                       white_wine_subset_remove, median)
 ggplot(data = white_wine_subset_remove, aes(alcohol, free.sulfur.dioxide)) + 
   geom_point(aes(size = ordered_category, colour = ordered_category, 
                  alpha = ordered_category)) +
   scale_size_manual(values = c(5, 5, 5)) + 
-  scale_alpha_manual(values = c(0.6, 0.05, 1))
+  scale_alpha_manual(values = c(0.6, 0.05, 1)) + 
+  geom_point(data=centroids, colour="black", size = 8) +
+  geom_point(data=centroids, aes(colour = ordered_category), size = 5)
 ```
 
 Another similar plot can be draw between wine quality and variable chlorides and density. Many high quality wine are located at left lower corner of the plot. The values of density and chlorides of high quality wine is lower than that of the other two qualities of wine. The two values of low quality wine don't stand out from the whole collection of wine. 
 ```{r}
-ggplot(data = white_wine_subset, aes(chlorides, density)) + 
+white_wine_subset_remove <- subset(white_wine_subset, 
+                                   white_wine_subset$density < 
+                         quantile(white_wine_subset$density, 0.99))
+centroids <- aggregate(cbind(chlorides,density)~ordered_category,
+                       white_wine_subset_remove, median)
+ggplot(data = white_wine_subset_remove, aes(chlorides, density)) + 
   geom_point(aes(size = ordered_category, colour = ordered_category, 
-                 shape = ordered_category), alpha = 0.4)
+                 alpha = ordered_category)) +
+  scale_size_manual(values = c(5, 5, 5)) + 
+  scale_alpha_manual(values = c(1, 0.05, 1)) +
+  geom_point(data=centroids, colour="black", size = 8) +
+  geom_point(data=centroids, aes(colour = ordered_category), size = 5)
 ```
 
 Further exploration of data is needed to clarify the above relations. The difficulties arise from the unbalanced number of normal quality wines and the other two categories of wine. The way I addressed this problem is by ratios. Since most of wines are in normal quality. I will compare the ratio of low or high quality wines to normal quality wines in the different intelvals of various variables. 
