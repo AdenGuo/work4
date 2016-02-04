@@ -436,8 +436,19 @@ persp3d(ph_interval, alcohol_interval,  ratio_smooth, col = cm.colors(100))
 
 ### Plot 1 Common Quality of Wines
 
-The most important fact is conveyed by this pie plot. Almost all the white wines of Vinho Verde have similar qualities. I think this result due to the fact that wines all cames from a small area of Portugal and the quality is strictly controlled by official organization of Vinho Verde. 
+The most important fact about white wines of Vinho Verde is conveyed by this pie plot. The table below showed that there aren't any wines in all the 4898 wines to be determined as grade 1 and 2(tasted very bad). In other hand, no wines are graded 10(perfect) and only 5 wines are granded as 9 (second best). Almost all the white wines of Vinho Verde have similar qualities (more than 92% of the wines is in grade 5, 6 and 7). It mean that if I randomly choose a bottle a white Vinho Verde. I always can assure myself that the wine have a common quality. I think this result due to the fact that wines all cames from a small area of Portugal and the quality is strictly controlled by official organization of Vinho Verde. 
 ```{r}
+table(white_wine$ordered_quality)
+centroids <- aggregate(cbind(alcohol,pH)~ordered_category,white_wine_subset,mean)
+
+group_data <- group_by(white_wine, ordered_category)
+summary_data <- summarise(group_data, n = n())
+percentages <- (summary_data$n / sum(summary_data$n))*100
+percentages <- format(percentages, digits =2)
+percentages <- paste(percentages,"%", sep = "")
+pos = cumsum(summary_data$n) - summary_data$n/2
+pos[1] = pos[1] + 200
+pos[3] = pos[3] - 200
 cols <- c("low" = "red","normal" = "blue","high" = "orange")
 blank_theme <- theme_minimal()+
   theme(
@@ -451,8 +462,9 @@ blank_theme <- theme_minimal()+
     legend.title = element_text(size=16, face="bold"),
     legend.background=element_rect(fill = "transparent",colour='lightblue')
   )
-ggplot(data = white_wine, aes(x = factor(1), fill = ordered_category)) +
-  geom_bar(width = 1) + 
+ggplot(data = summary_data, aes(x = factor(1), y = n, fill = ordered_category)) +
+  geom_bar(stat="identity") + 
+  geom_text(aes(x= factor(1), y=pos, label = percentages), size=10) +  
   coord_polar(theta = "y", start=0) +
   xlab('') +
   ylab('') +
@@ -468,18 +480,18 @@ ggplot(data = white_wine, aes(x = factor(1), fill = ordered_category)) +
 
 ### Plot 2 Alcohol of Wines
 
-The following figure show the relationship between alcohol and wine quality. The difference of alcohol in different qualities of wine is obvious. The high quality wine tends to have high alcohol.
+The following figure show the relationship between alcohol and wine quality. The difference of alcohol in different qualities of wine is obvious. The high quality wine tends to have high alcohol. Meidans of alcohol of different categories of wines is as following. 
+```{r}
+aggregate(alcohol~ordered_category,white_wine,median)
+```
+Means of alcohol of different categories of wines is as following. 
+```{r}
+aggregate(alcohol~ordered_category,white_wine,mean)
+```
+The boxplot and density plot is as following. As we can see from the statistics and the pictures. The median of high quality wines are nearly 2% higher than the other two categories of the wines. That means high quality wines of Vinho Verde have higher concentration of alcohol. When looked closely, the number may tell some information of Vinho Verde. Both low and normal quality wines have a concentration of alcohol around 10%. From some background knowledge, 10% alcohol is very low for ordinary wines. Most wines contains more than 12% alcohol. And high quality wines have a median of alcohol concentration more than 12%. These numbers, combined with the fact that marketing of Vinho Verde is most for unconventional occasions and not suit for serious events, may reveal that high quality Vinho Verde may taste like ordinary wine with good quality.  
+
 ```{r}
 cols <- c("low" = "red","normal" = "blue","high" = "orange")
-blank_theme <- theme_minimal()+
-  theme(
-    axis.text = element_blank(),
-    plot.title=element_text(size=20, face="bold"),
-    legend.text = element_text(size=14, face="bold"),
-    legend.title = element_text(size=16, face="bold"),
-    axis.title = element_text(size=16),
-    legend.background=element_rect(fill = "transparent",colour='lightblue')
-  )
 p_boxplot = ggplot(data = white_wine, aes(x = ordered_category, y = alcohol)) + 
   geom_boxplot(aes(fill= ordered_category)) + 
   xlab('') + 
@@ -490,7 +502,13 @@ p_boxplot = ggplot(data = white_wine, aes(x = ordered_category, y = alcohol)) +
                                "Normal Quality (Grade 5, 6 and 7)", 
                                "High Quality(Grade 8 and 9)")) + 
   labs(title = "Alcohol By Wine Qualities") + 
-  blank_theme 
+  theme(plot.title=element_text(size=20, face="bold"), 
+        legend.text = element_text(size=14, face="bold"),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_text(size=16, face="bold"),
+        axis.text = element_text(size=10),
+        axis.title = element_text(size=16))
 p_density = ggplot(data = white_wine, aes(alcohol, ..density..)) + 
   geom_density(aes(colour = ordered_category)) + 
   xlab('Alcohol (% by volume)') + 
@@ -500,14 +518,25 @@ p_density = ggplot(data = white_wine, aes(alcohol, ..density..)) +
                       labels = c("Low Quality (Grade 1, 2, 3 and 4)", 
                                  "Normal Quality (Grade 5, 6 and 7)", 
                                  "High Quality(Grade 8 and 9)")) + 
-  labs(title = "Density Plot of Alcohol By Wine Qualities") + 
-  blank_theme   
+  labs(title = "Density Plot of Alcohol By Wine Qualities") +
+  theme(plot.title=element_text(size=20, face="bold"), 
+        legend.text = element_text(size=14, face="bold"),
+        legend.title = element_text(size=16, face="bold"),
+        axis.text = element_text(size=10),
+        axis.title = element_text(size=16))
 grid.arrange(p_boxplot,p_density, nrow=2)
+
+#Calculate the median of alcohol of different categories of wines 
+
 ```
 
 ### Plot 3 Ratios of Counts of Wines
 
-This figure is used to resolve the unbalanced counts of normal quality wines and the other two categories of wines. The ratio variation clearly shows that for each different pH intervals the ratios of counts of high quality wine to that of normal ones are quite different. And the comparison of red and blue line tells difference of high and low quality wine. In this plot, high quality wine tends to stay in the high value of pH intervals. And the variation of ratios of low quality wines is not apparent to make the pH value a good feature predicting low quality wine.  
+This figure is used to resolve the unbalanced counts of normal quality wines and the other two categories of wines. From the plotting we can see following facts. First fact is that numbers of normal quality wines is far more than other two categories of wines. Even in the intervals which contains many low and high quality wines. The highest ratio is the plotting is less than 0.08. That means the if a interval contained 100 normal quality wines. The biggest number of other two categories of wines is 8. This result gives us the fact that the chemical value of wines can only be used to predict the possiblity of high or low quality wines. The best judgement of the quality of a wine based on this dataset is alway normal! 
+
+Second fact is the variation of ratios of low quality wines is not apparent to make the pH value a good feature predicting low quality wine. The ratio is between 0.038 to 0.058. Most values of the ratio is around the dashed horizontal line which represent overall ratio of counts of low quality to normal quality. That means when pH value veries the possbility to find a low quality wine is unchanged. 
+
+However, high quality wine tends to stay in the high value of pH intervals. The highest ratio of high quality wines is nearly 8% and lowest is almost down to 0. That means that you have a better chance to find a high quality wine when you are looking at wines with higher pH values.
 ```{r}
 blank_theme <- theme_minimal()+
   theme(
@@ -522,6 +551,9 @@ ggplot(pH_ratio, aes(x = variale_intervel)) +
               se = FALSE) + 
   geom_smooth(aes(y = low_ratio, colour = "Low Quality to Normal"), 
               se = FALSE) +
+  geom_hline(yintercept=mean(pH_ratio$low_ratio), color  = 'blue', 
+             linetype=2, show.legend = TRUE) +
+  geom_hline(yintercept=mean(pH_ratio$high_ratio), color  = 'red', linetype=2) +
   xlab('Sorted pH Intervals (Represented by Sorted Integers)') + 
   ylab('Counts Ratios') + 
   labs(title = "Counts Ratios Versus Intervals of pH") + 
